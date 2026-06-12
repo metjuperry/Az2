@@ -17,10 +17,9 @@ export function Pyramid({ board, state, onPick }: PyramidProps) {
         <div className="pyramid__row" role="row" key={rowIndex}>
           {row.map((tile) => {
             const owner = state.owners.get(tile.id) ?? null
-            const ownedByPlayer = owner === 'A' || owner === 'B'
             // While a question is open, nothing is clickable. Otherwise only
-            // tiles not owned by a player can be picked (black is re-selectable).
-            const disabled = questionOpen || state.phase === 'gameover' || ownedByPlayer
+            // free tiles can be picked (claimed and black tiles are blocked).
+            const disabled = questionOpen || state.phase === 'gameover' || owner !== null
             return (
               <Tile
                 key={tile.id}

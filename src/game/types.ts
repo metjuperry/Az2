@@ -6,7 +6,7 @@ export type Player = 'A' | 'B'
 /**
  * Who owns a given tile.
  * - `'A'` / `'B'`: claimed by that player.
- * - `'black'`: nobody answered correctly; tile is blocked but re-selectable.
+ * - `'black'`: nobody answered correctly; tile is permanently blocked.
  * - `null`: still free.
  */
 export type Owner = Player | 'black' | null

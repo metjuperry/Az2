@@ -48,11 +48,10 @@ export class Game {
     return this.phase === 'gameover'
   }
 
-  /** A tile can be picked if the game is idle and it is not owned by a player. */
+  /** A tile can be picked if the game is idle and it is still free. */
   canPick(id: number): boolean {
     if (this.phase !== 'idle') return false
-    const owner = this.ownerOf(id)
-    return owner === null || owner === 'black'
+    return this.ownerOf(id) === null
   }
 
   /** The player who may answer right now (current player, or opponent while stealing). */
