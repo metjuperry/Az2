@@ -160,16 +160,18 @@ export function QuestionPanel({
         </button>
         {revealed && <p className="panel__answer">Správná odpověď: {entry.answer}</p>}
 
-        <div className="panel__buttons">
-          <button type="button" className="btn btn--correct" onClick={() => onResult(true)}>
-            <CheckIcon />
-            Správně
-          </button>
-          <button type="button" className="btn" onClick={() => onResult(false)}>
-            <CrossIcon />
-            Špatně
-          </button>
-        </div>
+        {feedback === 'wrong' && (
+          <div className="panel__buttons">
+            <button type="button" className="btn btn--correct" onClick={() => onResult(true)}>
+              <CheckIcon />
+              Správně
+            </button>
+            <button type="button" className="btn" onClick={() => onResult(false)}>
+              <CrossIcon />
+              Špatně
+            </button>
+          </div>
+        )}
       </div>
     </section>
   )
