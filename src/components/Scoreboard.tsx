@@ -15,37 +15,44 @@ function countOwned(state: GameSnapshot, player: Player): number {
 
 export function Scoreboard({ state, onReset }: ScoreboardProps) {
   const players: Player[] = ['A', 'B']
+  const gameOver = state.phase === 'gameover'
 
   return (
     <div className="scoreboard">
       <div className="scoreboard__players">
         {players.map((p) => {
           const info = PLAYERS[p]
-          const isTurn = state.phase !== 'gameover' && state.current === p
+          const count = countOwned(state, p)
+          const isTurn = !gameOver && state.current === p
           return (
-            <div
-              key={p}
-              className={`scorecard ${isTurn ? 'scorecard--turn' : ''}`}
-              style={{ borderColor: info.color }}
-            >
-              <span className="scorecard__swatch" style={{ background: info.color }} />
-              <span className="scorecard__name">{info.name}</span>
-              <span className="scorecard__count">{countOwned(state, p)}</span>
-              {isTurn && <span className="scorecard__badge">na tahu</span>}
+            <div key={p} className={`scorecard scorecard--${p} ${isTurn ? 'scorecard--turn' : ''}`}>
+              <div className="scorecard__top">
+                <span className="scorecard__swatch" aria-hidden="true" />
+                <span className="scorecard__name">{info.name}</span>
+                {isTurn && <span className="scorecard__turn">Na tahu</span>}
+              </div>
+              <span className="scorecard__count" aria-label={`Získaná pole: ${count}`}>
+                {count}
+              </span>
             </div>
           )
         })}
       </div>
 
-      {state.phase === 'gameover' && state.winner && (
-        <div className="scoreboard__winner" style={{ background: PLAYERS[state.winner].color }}>
-          🏆 {PLAYERS[state.winner].name} vyhrává!
+      {gameOver && state.winner && (
+        <div
+          className={`scoreboard__winner scoreboard__winner--${state.winner}`}
+          role="status"
+        >
+          {PLAYERS[state.winner].name} vyhrává!
         </div>
       )}
 
-      {state.phase === 'stealing' && <div className="scoreboard__steal">Šance na krádež!</div>}
-
-      <button type="button" className="btn btn--ghost" onClick={onReset}>
+      <button
+        type="button"
+        className={`btn ${gameOver ? 'btn--primary' : 'btn--ghost'}`}
+        onClick={onReset}
+      >
         Nová hra
       </button>
     </div>

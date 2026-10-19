@@ -9,18 +9,20 @@ interface TileProps {
   onPick: (id: number) => void
 }
 
-function ownerStyle(owner: Owner): React.CSSProperties {
-  if (owner === 'A' || owner === 'B') {
-    return { background: PLAYERS[owner].color, color: '#fff', borderColor: PLAYERS[owner].color }
-  }
-  if (owner === 'black') {
-    return { background: '#1a1a1a', color: '#777', borderColor: '#1a1a1a' }
-  }
-  return {}
+function describe(label: string, owner: Owner, active: boolean): string {
+  if (owner === 'A' || owner === 'B') return `Pole ${label}, získal ${PLAYERS[owner].name}`
+  if (owner === 'black') return `Pole ${label}, nikdo neodpověděl správně`
+  if (active) return `Pole ${label}, otázka je otevřená`
+  return `Pole ${label}`
 }
 
 export function Tile({ tile, owner, active, disabled, onPick }: TileProps) {
-  const className = ['tile', active ? 'tile--active' : '', owner === null ? 'tile--free' : '']
+  const className = [
+    'tile',
+    owner === null ? 'tile--free' : `tile--${owner}`,
+    active ? 'tile--active' : '',
+    disabled && owner === null && !active ? 'tile--locked' : '',
+  ]
     .filter(Boolean)
     .join(' ')
 
@@ -28,12 +30,13 @@ export function Tile({ tile, owner, active, disabled, onPick }: TileProps) {
     <button
       type="button"
       className={className}
-      style={ownerStyle(owner)}
       disabled={disabled}
       onClick={() => onPick(tile.id)}
-      aria-label={`Pole ${tile.label}`}
+      aria-label={describe(tile.label, owner, active)}
     >
-      {tile.label}
+      <span className="tile__face" aria-hidden="true">
+        {tile.label}
+      </span>
     </button>
   )
 }

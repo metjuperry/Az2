@@ -12,9 +12,9 @@ export function Pyramid({ board, state, onPick }: PyramidProps) {
   const questionOpen = state.phase === 'answering' || state.phase === 'stealing'
 
   return (
-    <div className="pyramid" role="grid" aria-label="AZ kvíz pyramida">
+    <div className="pyramid" role="group" aria-label="AZ kvíz pyramida">
       {board.rows().map((row, rowIndex) => (
-        <div className="pyramid__row" role="row" key={rowIndex}>
+        <div className="pyramid__row" key={rowIndex}>
           {row.map((tile) => {
             const owner = state.owners.get(tile.id) ?? null
             // While a question is open, nothing is clickable. Otherwise only
