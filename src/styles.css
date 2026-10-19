@@ -775,6 +775,25 @@ input {
   color: var(--ink-soft);
 }
 
+.edit__file {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.edit__status {
+  margin: 0;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+
+.edit__status--error {
+  color: #a3243b;
+}
+
 .progress {
   width: min(100%, 260px);
 }
