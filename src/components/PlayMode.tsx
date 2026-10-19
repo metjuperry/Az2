@@ -1,4 +1,5 @@
 import type { QuestionStore } from '../storage/QuestionStore'
+import { PLAYERS } from '../game/players'
 import { useGame } from '../hooks/useGame'
 import { Pyramid } from './Pyramid'
 import { QuestionPanel } from './QuestionPanel'
@@ -17,9 +18,7 @@ export function PlayMode({ store }: PlayModeProps) {
     <div className="play">
       <div className="play__board">
         <Pyramid board={game.board} state={state} onPick={pickTile} />
-        <p className="play__hint-legend">
-          Spoj všechny tři strany pyramidy svou barvou a vyhraj.
-        </p>
+        <p className="play__rule">Spoj všechny tři strany pyramidy svou barvou a vyhraj.</p>
       </div>
 
       <aside className="play__side">
@@ -35,7 +34,10 @@ export function PlayMode({ store }: PlayModeProps) {
           />
         ) : (
           state.phase === 'idle' && (
-            <p className="play__prompt">Vyber pole na pyramidě a odpověz na otázku.</p>
+            <p className="play__prompt">
+              <strong>{PLAYERS[state.current].name}</strong>, vyber pole na pyramidě a odpověz na
+              otázku.
+            </p>
           )
         )}
       </aside>

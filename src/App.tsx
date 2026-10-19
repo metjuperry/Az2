@@ -15,18 +15,27 @@ export default function App() {
   return (
     <div className="app">
       <header className="app__header">
-        <h1 className="app__title">AZ kvíz</h1>
-        <nav className="app__modes">
+        <h1 className="brand">
+          <span className="brand__mark" aria-hidden="true">
+            AZ
+          </span>
+          <span>
+            <span className="sr-only">AZ </span>kvíz
+          </span>
+        </h1>
+        <nav className="modes" aria-label="Režim">
           <button
             type="button"
-            className={`mode ${mode === 'play' ? 'mode--active' : ''}`}
+            className="mode"
+            aria-pressed={mode === 'play'}
             onClick={() => setMode('play')}
           >
             Hra
           </button>
           <button
             type="button"
-            className={`mode ${mode === 'edit' ? 'mode--active' : ''}`}
+            className="mode"
+            aria-pressed={mode === 'edit'}
             onClick={() => setMode('edit')}
           >
             Úprava
