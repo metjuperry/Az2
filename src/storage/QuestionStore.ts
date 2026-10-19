@@ -38,8 +38,8 @@ export class QuestionStore {
       const raw = localStorage.getItem(STORAGE_KEY)
       if (!raw) return { ...DEFAULT_QUESTIONS }
       const parsed = JSON.parse(raw) as QuestionMap
-      // Merge over defaults so newly added default tiles still appear.
-      return { ...DEFAULT_QUESTIONS, ...parsed }
+      // Stored data is authoritative (an import may deliberately leave tiles empty).
+      return parsed
     } catch {
       return { ...DEFAULT_QUESTIONS }
     }
@@ -54,7 +54,7 @@ export class QuestionStore {
     return this.cache[id]
   }
 
-  /** Replace the whole map and persist. */
+  /** Replace the whole map (nothing is merged back in) and persist. */
   save(map: QuestionMap): void {
     this.cache = { ...map }
     this.persist()

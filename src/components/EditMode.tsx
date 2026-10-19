@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import type { Board } from '../game/Board'
 import type { QuestionMap } from '../game/types'
 import type { QuestionStore } from '../storage/QuestionStore'
 import { prefersReducedMotion } from '../lib/motion'
+import { parseQuestionsCsv, questionsToCsv } from '../storage/questionsCsv'
 
 interface EditModeProps {
   board: Board
@@ -23,7 +24,39 @@ export function EditMode({ board, store }: EditModeProps) {
     store.set(id, entry)
   }
 
+  const [status, setStatus] = useState<{ kind: 'ok' | 'error'; text: string } | null>(null)
+  const fileInput = useRef<HTMLInputElement>(null)
+
   const total = board.tiles.length
+
+  const exportCsv = () => {
+    const blob = new Blob([questionsToCsv(map, total)], { type: 'text/csv;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = 'az-kviz-otazky.csv'
+    link.click()
+    URL.revokeObjectURL(url)
+    setStatus({ kind: 'ok', text: 'Otázky byly exportovány do az-kviz-otazky.csv.' })
+  }
+
+  const importCsv = async (file: File) => {
+    try {
+      const { map: imported, warnings } = parseQuestionsCsv(await file.text(), total)
+      const count = Object.keys(imported).length
+      if (!window.confirm(`Importem se nahradí všechny současné otázky (${count} z ${total} polí v souboru). Pokračovat?`)) {
+        return
+      }
+      store.save(imported)
+      setMap(store.load())
+      setStatus({
+        kind: 'ok',
+        text: `Importováno ${count} polí.${warnings.length ? ` ${warnings.join(' ')}` : ''}`,
+      })
+    } catch (error) {
+      setStatus({ kind: 'error', text: error instanceof Error ? error.message : 'Soubor se nepodařilo načíst.' })
+    }
+  }
   const done = board.tiles.filter((tile) => isComplete(map[tile.id])).length
 
   const jumpTo = (id: number) => {
@@ -54,6 +87,31 @@ export function EditMode({ board, store }: EditModeProps) {
             />
           </div>
         </div>
+      </div>
+
+      <div className="edit__file">
+        <button type="button" className="btn btn--ghost" onClick={exportCsv}>
+          Exportovat (CSV)
+        </button>
+        <button type="button" className="btn btn--ghost" onClick={() => fileInput.current?.click()}>
+          Importovat (CSV)
+        </button>
+        <input
+          ref={fileInput}
+          type="file"
+          accept=".csv,text/csv"
+          hidden
+          onChange={(e) => {
+            const file = e.target.files?.[0]
+            e.target.value = ''
+            if (file) void importCsv(file)
+          }}
+        />
+        {status && (
+          <p className={`edit__status edit__status--${status.kind}`} role="status">
+            {status.text}
+          </p>
+        )}
       </div>
 
       <div className="edit__layout">
