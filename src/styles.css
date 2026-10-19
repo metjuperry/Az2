@@ -433,8 +433,6 @@ input {
 .scorecard {
   --tone: var(--ink);
   --tone-edge: var(--ink);
-  --edge-off: var(--line);
-  --edge-on: var(--tone);
 
   display: flex;
   flex-direction: column;
@@ -458,8 +456,6 @@ input {
 }
 
 .scorecard--turn {
-  --edge-off: rgba(255, 255, 255, 0.4);
-  --edge-on: #fff;
   background: var(--tone);
   color: #fff;
   transform: translateY(-3px);
@@ -499,36 +495,11 @@ input {
   font-weight: 800;
 }
 
-.scorecard__bottom {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 0.5rem;
-}
-
 .scorecard__count {
   font-family: var(--font-display);
   font-size: 2.25rem;
   font-weight: 700;
   line-height: 1;
-}
-
-.sides {
-  width: 2.75rem;
-  height: auto;
-  flex: none;
-}
-
-.sides__edge {
-  fill: none;
-  stroke: var(--edge-off);
-  stroke-width: 5;
-  stroke-linecap: round;
-  transition: stroke 0.25s ease;
-}
-
-.sides__edge--on {
-  stroke: var(--edge-on);
 }
 
 .scoreboard__winner {
