@@ -2,11 +2,15 @@ import { useState } from 'react'
 import type { Board } from '../game/Board'
 import type { QuestionMap } from '../game/types'
 import type { QuestionStore } from '../storage/QuestionStore'
+import { prefersReducedMotion } from '../lib/motion'
 
 interface EditModeProps {
   board: Board
   store: QuestionStore
 }
+
+const isComplete = (entry: { question?: string; answer?: string } | undefined): boolean =>
+  Boolean(entry?.question?.trim() && entry?.answer?.trim())
 
 export function EditMode({ board, store }: EditModeProps) {
   const [map, setMap] = useState<QuestionMap>(() => store.load())
@@ -19,44 +23,108 @@ export function EditMode({ board, store }: EditModeProps) {
     store.set(id, entry)
   }
 
+  const total = board.tiles.length
+  const done = board.tiles.filter((tile) => isComplete(map[tile.id])).length
+
+  const jumpTo = (id: number) => {
+    const input = document.getElementById(`q-${id}`)
+    if (!input) return
+    input.scrollIntoView({
+      block: 'center',
+      behavior: prefersReducedMotion() ? 'auto' : 'smooth',
+    })
+    input.focus({ preventScroll: true })
+  }
+
   return (
     <div className="edit">
-      <p className="edit__intro">
-        Uprav otázky a správné odpovědi pro jednotlivá pole. Změny se ukládají
-        automaticky do tohoto prohlížeče.
-      </p>
+      <div className="edit__head">
+        <p className="edit__intro">
+          Uprav otázky a správné odpovědi pro jednotlivá pole. Změny se ukládají automaticky do
+          tohoto prohlížeče.
+        </p>
+        <div className="progress" role="status">
+          <p className="progress__text">
+            {done} z {total} polí je hotových
+          </p>
+          <div className="progress__track" aria-hidden="true">
+            <div
+              className={`progress__fill ${done === total ? 'progress__fill--done' : ''}`}
+              style={{ '--pct': `${(done / total) * 100}%` } as React.CSSProperties}
+            />
+          </div>
+        </div>
+      </div>
 
-      <div className="edit__list">
-        {board.tiles.map((tile) => {
-          const entry = map[tile.id]
-          const incomplete = !entry?.question?.trim() || !entry?.answer?.trim()
-          return (
-            <div key={tile.id} className={`edit__row ${incomplete ? 'edit__row--incomplete' : ''}`}>
-              <div className="edit__id">{tile.label}</div>
-              <div className="edit__fields">
-                <label className="edit__field">
-                  <span>Otázka</span>
-                  <input
-                    type="text"
-                    value={entry?.question ?? ''}
-                    placeholder="Zadej otázku…"
-                    onChange={(e) => update(tile.id, 'question', e.target.value)}
-                  />
-                </label>
-                <label className="edit__field">
-                  <span>Odpověď</span>
-                  <input
-                    type="text"
-                    value={entry?.answer ?? ''}
-                    placeholder="Zadej správnou odpověď…"
-                    onChange={(e) => update(tile.id, 'answer', e.target.value)}
-                  />
-                </label>
+      <div className="edit__layout">
+        <aside className="edit__map">
+          <div className="mini" role="group" aria-label="Přejít na pole">
+            {board.rows().map((row, rowIndex) => (
+              <div className="mini__row" key={rowIndex}>
+                {row.map((tile) => {
+                  const complete = isComplete(map[tile.id])
+                  return (
+                    <button
+                      key={tile.id}
+                      type="button"
+                      className={`mini__tile ${complete ? '' : 'mini__tile--todo'}`}
+                      onClick={() => jumpTo(tile.id)}
+                      aria-label={`Pole ${tile.label}${complete ? '' : ', chybí zadání'}`}
+                    >
+                      {tile.label}
+                    </button>
+                  )
+                })}
               </div>
-              {incomplete && <span className="edit__flag" title="Chybí otázka nebo odpověď">!</span>}
-            </div>
-          )
-        })}
+            ))}
+          </div>
+          <ul className="legend">
+            <li>
+              <span className="legend__swatch" aria-hidden="true" />
+              Hotovo
+            </li>
+            <li>
+              <span className="legend__swatch legend__swatch--todo" aria-hidden="true" />
+              Chybí zadání
+            </li>
+          </ul>
+        </aside>
+
+        <div className="edit__list">
+          <div className="edit__cols" aria-hidden="true">
+            <span>Otázka</span>
+            <span>Odpověď</span>
+          </div>
+
+          {board.tiles.map((tile) => {
+            const entry = map[tile.id]
+            const complete = isComplete(entry)
+            return (
+              <div key={tile.id} className={`edit__row ${complete ? '' : 'edit__row--incomplete'}`}>
+                <div className="edit__id" title={complete ? undefined : 'Chybí otázka nebo odpověď'}>
+                  {tile.label}
+                </div>
+                <input
+                  id={`q-${tile.id}`}
+                  className="edit__input"
+                  type="text"
+                  value={entry?.question ?? ''}
+                  placeholder="Zadej otázku…"
+                  aria-label={`Otázka k poli ${tile.label}`}
+                  onChange={(e) => update(tile.id, 'question', e.target.value)}
+                />
+                <input
+                  className="edit__input"
+                  type="text"
+                  value={entry?.answer ?? ''}
+                  placeholder="Zadej správnou odpověď…"
+                  aria-label={`Odpověď k poli ${tile.label}`}
+                  onChange={(e) => update(tile.id, 'answer', e.target.value)}
+                />
+              </div>
+            )
+          })}
+        </div>
       </div>
     </div>
   )
